@@ -1,0 +1,74 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+
+const posts = await getCollection('blog');
+const tagCounts: Record<string, number> = {};
+for (const post of posts) {
+	for (const tag of post.data.tags) {
+		tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
+	}
+}
+const tags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
+---
+
+<!doctype html>
+<html lang="ru">
+	<head>
+		<BaseHead title="Теги" description="Все теги дайджеста" />
+		<style>
+			main {
+				width: 960px;
+				max-width: calc(100% - 2em);
+				margin: auto;
+				padding: 2em 1em;
+			}
+			.tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.75rem;
+				list-style: none;
+				margin: 0;
+				padding: 0;
+			}
+			.tags a {
+				display: inline-block;
+				padding: 0.3em 0.75em;
+				border-radius: 2em;
+				background: rgb(var(--gray-light));
+				color: rgb(var(--gray-dark));
+				text-decoration: none;
+				font-size: 0.9em;
+				transition: background 0.2s;
+			}
+			.tags a:hover {
+				background: rgb(var(--accent));
+				color: white;
+			}
+			.count {
+				font-size: 0.8em;
+				opacity: 0.6;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>Теги</h1>
+			<ul class="tags">
+				{
+					tags.map(([tag, count]) => (
+						<li>
+							<a href={`/tags/${tag}/`}>
+								#{tag} <span class="count">{count}</span>
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</main>
+		<Footer />
+	</body>
+</html>
